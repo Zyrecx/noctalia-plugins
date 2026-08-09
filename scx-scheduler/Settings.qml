@@ -16,7 +16,7 @@ ColumnLayout {
 
   property int valuePollIntervalSec: pluginApi?.pluginSettings?.pollIntervalSec ?? 5
   property bool valueShowLabel: pluginApi?.pluginSettings?.showLabel ?? true
-  property string valueStoppedLabel: pluginApi?.pluginSettings?.stoppedLabel ?? "default"
+  property string valueStoppedLabel: pluginApi?.pluginSettings?.stoppedLabel ?? "off"
   property string valueDefaultMode: pluginApi?.pluginSettings?.defaultMode ?? "auto"
 
   NToggle {

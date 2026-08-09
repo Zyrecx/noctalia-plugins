@@ -31,7 +31,7 @@ Item {
   readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
   readonly property bool showLabel: cfg.showLabel ?? defaults.showLabel ?? true
-  readonly property string stoppedLabel: cfg.stoppedLabel ?? defaults.stoppedLabel ?? "default"
+  readonly property string stoppedLabel: cfg.stoppedLabel ?? defaults.stoppedLabel ?? "off"
   readonly property string activeColor: cfg.activeColor ?? defaults.activeColor ?? "primary"
   readonly property string textColor: cfg.textColor ?? defaults.textColor ?? "none"
   readonly property string iconColor: cfg.iconColor ?? defaults.iconColor ?? "none"
