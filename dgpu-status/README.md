@@ -3,6 +3,8 @@
 Shows whether the discrete NVIDIA GPU is powered up, and — only while it already is — its
 temperature, load, power draw, VRAM and the processes using it.
 
+<img src="preview.png" alt="The dGPU panel while the GPU is awake" width="340">
+
 ## The point of this plugin
 
 On a Max-Q / hybrid laptop the dGPU spends most of its life runtime-suspended in D3cold. Every
@@ -54,11 +56,11 @@ keep the device from reaching its own idle threshold. The panel says when this i
 ## Install
 
 ```fish
-ln -s /mnt/SSD2/Projects/noctalia-plugins/dgpu-status ~/.config/noctalia/plugins/dgpu-status
+ln -s ~/src/noctalia-plugins/dgpu-status ~/.config/noctalia/plugins/dgpu-status
 ```
 
-Restart the shell (or toggle the plugin in Settings → Plugins → Installed), then add the widget in
-Settings → Bar.
+Restart the shell (`qs kill -c noctalia-shell; sleep 1; qs -c noctalia-shell -d`), enable the plugin
+in Settings → Plugins → Installed, then add the widget in Settings → Bar.
 
 ## Keybind (optional)
 

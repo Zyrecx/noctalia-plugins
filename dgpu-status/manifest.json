@@ -31,5 +31,6 @@
       "showTemperature": true,
       "activeColor": "primary"
     }
-  }
+  },
+  "repository": "https://github.com/Zyrecx/noctalia-plugins"
 }

@@ -29,7 +29,7 @@
  *
  * INSTALL
  *     pkexec install -m 0644 -o root -g root \
- *       /mnt/SSD2/Projects/noctalia-plugins/scx-scheduler/49-scx-loader-nopasswd.rules \
+ *       ~/src/noctalia-plugins/scx-scheduler/49-scx-loader-nopasswd.rules \
  *       /etc/polkit-1/rules.d/49-scx-loader-nopasswd.rules
  *
  * Takes effect immediately — polkit watches rules.d, no restart needed.

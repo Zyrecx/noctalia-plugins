@@ -1,73 +1,96 @@
 # noctalia-plugins
 
-Three plugins for [Noctalia Shell](https://github.com/noctalia-dev/noctalia-shell) 4.7.7, written
-for this machine (CachyOS + Hyprland, RTX 5060 Max-Q + AMD iGPU).
+Three plugins for [Noctalia Shell](https://github.com/noctalia-dev/noctalia-shell) — a launcher
+mode that opens filesystem paths, a sched-ext CPU scheduler switcher, and a discrete-GPU monitor
+that never wakes a sleeping GPU.
 
-| Plugin | What it does | Entry points |
-|---|---|---|
-| [`scx-scheduler`](scx-scheduler/) | Switch sched-ext CPU schedulers from the bar | main, barWidget, panel, settings |
-| [`run-path`](run-path/) | `Super+R` prompt: type a path to open it, or anything else to run it | main, launcherProvider, settings |
-| [`dgpu-status`](dgpu-status/) | dGPU power state + stats, without ever waking a sleeping GPU | main, barWidget, panel, settings |
+![The three plugins](docs/hero.png)
 
-Each folder has its own README with install, keybinds and design notes.
+| Plugin | What it does |
+|---|---|
+| [`run-path`](run-path/) | Type a path in the launcher to open it, with live completion — or type anything else to run it |
+| [`scx-scheduler`](scx-scheduler/) | Switch [sched-ext](https://github.com/sched-ext/scx) CPU schedulers from the bar |
+| [`dgpu-status`](dgpu-status/) | dGPU power state and stats, read without ever resuming a suspended GPU |
 
-## Install all three
+Each folder has its own README with install steps, keybinds and design notes.
 
-They are already symlinked into the shell's plugin directory:
+## Install
+
+Clone anywhere and symlink the plugins you want into Noctalia's plugin directory:
 
 ```fish
-ln -sfn /mnt/SSD2/Projects/noctalia-plugins/scx-scheduler ~/.config/noctalia/plugins/scx-scheduler
-ln -sfn /mnt/SSD2/Projects/noctalia-plugins/run-path      ~/.config/noctalia/plugins/run-path
-ln -sfn /mnt/SSD2/Projects/noctalia-plugins/dgpu-status   ~/.config/noctalia/plugins/dgpu-status
+git clone https://github.com/Zyrecx/noctalia-plugins.git ~/src/noctalia-plugins
+
+ln -s ~/src/noctalia-plugins/run-path      ~/.config/noctalia/plugins/run-path
+ln -s ~/src/noctalia-plugins/scx-scheduler ~/.config/noctalia/plugins/scx-scheduler
+ln -s ~/src/noctalia-plugins/dgpu-status   ~/.config/noctalia/plugins/dgpu-status
 ```
 
 Symlinks work because the shell enumerates plugins with `for d in .../*/` plus a `[ -d "$d" ]`
-test, both of which follow symlinks. A plugin update or uninstall through the GUI would only remove
-the link, not this source tree — but don't uninstall through the GUI anyway, since these plugins
-aren't in any registry.
+test, both of which follow symlinks. Copying the directories instead works equally well.
 
-**A shell restart is required after adding a plugin directory.** `PluginRegistry.scanPluginFolder()`
-runs only at startup (`PluginRegistry.qml:134`), and nothing in the UI rescans the folder — the
-refresh button on the Installed tab checks the git registry for updates, not the disk. Restart with:
+**A shell restart is required after adding a plugin directory.**
+`PluginRegistry.scanPluginFolder()` runs only at startup, and nothing in the UI rescans the folder —
+the refresh button on the Installed tab checks the plugin registry for updates, not the disk:
 
 ```fish
 qs kill -c noctalia-shell; sleep 1; qs -c noctalia-shell -d
 ```
 
-A newly discovered plugin defaults to **disabled** (`PluginRegistry.isPluginEnabled` returns false
-for anything with no saved state), so nothing loads until you switch it on in
-**Settings → Plugins → Installed**.
+A newly discovered plugin defaults to **disabled**, so nothing loads until you switch it on in
+**Settings → Plugins → Installed**. `scx-scheduler` and `dgpu-status` then need their widget added
+in **Settings → Bar**.
 
 To remove one: `rm ~/.config/noctalia/plugins/<name>` — that deletes the symlink only.
 
+## Requirements
+
+Noctalia Shell 4.1.2 or newer (developed against 4.7.7) on Quickshell. Beyond that, each plugin
+needs only what it actually talks to:
+
+| Plugin | Needs |
+|---|---|
+| `run-path` | nothing beyond a file manager (`xdg-open` by default) |
+| `scx-scheduler` | `scx-tools` with the `scx_loader` service, and a polkit agent |
+| `dgpu-status` | an NVIDIA dGPU using runtime PM; `nvidia-smi` for the detailed stats |
+
+Keybinds are compositor-level. The examples are Hyprland syntax because that is what these were
+written on; the IPC calls behind them work under any compositor.
+
+## Bar widgets
+
+`scx-scheduler` and `dgpu-status` each add a bar capsule — the scheduler's short name (`off` when
+none is loaded) and the GPU's state, tinted while it is awake:
+
+![Bar widgets](docs/bar-widgets.png)
+
 ## Status
 
-What has been verified: the shell commands each plugin runs (executed directly), the output
-parsers (standalone JS harness, including a synthetic `nvidia-smi` process table), QML syntax
-(`qmllint`), and that the shell's plugin scan discovers the symlinks.
+Verified on the machine these were written for (CachyOS + Hyprland, RTX 5060 Max-Q + AMD iGPU):
+all three plugins load with no errors, the bar widgets and panels render, `dgpu-status` auto-detects
+the GPU at `0000:01:00.0`, scheduler switching works through the panel, and `run-path` opens and
+completes paths from its keybind.
 
-**Not yet verified: whether the entry points actually instantiate inside the running shell.**
-Enable them **one at a time** in Settings → Plugins → Installed and check that tab for an error
-badge after each — `PluginService` records load errors per entry point and the Installed tab shows
-them. Enabling all three at once makes a failure ambiguous about which plugin caused it.
+Verified by other means: every shell command each plugin runs (executed directly), the output
+parsers (a standalone JS harness, including a synthetic `nvidia-smi` process table and names
+containing spaces and commas), and QML syntax via `qmllint`.
 
-If a panel's list renders collapsed or the panel mis-sizes on first open, look at the
-`NScrollView { ColumnLayout { width: parent.width } }` blocks in `scx-scheduler/Panel.qml` and
-`dgpu-status/Panel.qml`: `ScrollView` reparents its child, and setting `contentWidth:
-availableWidth` on the NScrollView is the usual fix.
+Not verified: any machine other than that one. In particular `dgpu-status` assumes a single NVIDIA
+dGPU with runtime PM enabled, and `scx-scheduler` assumes the D-Bus interface of a current
+`scx_loader`. Both are version 0.1.0 — treat them accordingly.
 
 ## Developing
 
 Turn on debug mode in Noctalia's settings and `PluginService` will watch each plugin directory and
 hot-reload on save. Two caveats:
 
-- This tree is on an **ntfs3** mount, and `FileView`'s change watcher relies on inotify. If saves
-  don't trigger a reload, that's why — toggle the plugin off and on in Settings instead.
+- The watcher relies on inotify. On filesystems where that doesn't fire (an `ntfs3` mount, for
+  instance), saves won't trigger a reload — toggle the plugin off and on in Settings instead.
 - Hot reload re-instantiates entry points; it does not re-read `manifest.json` defaults into an
   existing `settings.json`. After changing `metadata.defaultSettings`, delete
   `~/.config/noctalia/plugins/<name>/settings.json` and reload.
 
-`qmllint <file>.qml` catches syntax errors. It cannot resolve the `qs.*` imports (the shell has no
+`qmllint <file>.qml` catches syntax errors. It cannot resolve the `qs.*` imports (the shell ships no
 `qmldir` files), so it won't catch a misspelled `Style.` token — those only show up at runtime in
 the shell's log.
 
@@ -85,3 +108,7 @@ Taken from the shell's own plugin contracts and the `clipboard` reference plugin
 - Bar widgets declare `property ShellScreen screen` with the type, and pass themselves as the
   `caller` to `openPanel(screen, this)` so the panel anchors to the widget instead of drifting to
   screen centre.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

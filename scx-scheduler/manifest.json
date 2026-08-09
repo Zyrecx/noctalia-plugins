@@ -25,11 +25,12 @@
     "defaultSettings": {
       "pollIntervalSec": 5,
       "showLabel": true,
-      "stoppedLabel": "default",
+      "stoppedLabel": "off",
       "defaultMode": "auto",
       "activeColor": "primary",
       "textColor": "none",
       "iconColor": "none"
     }
-  }
+  },
+  "repository": "https://github.com/Zyrecx/noctalia-plugins"
 }
