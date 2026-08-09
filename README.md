@@ -90,9 +90,19 @@ hot-reload on save. Two caveats:
   existing `settings.json`. After changing `metadata.defaultSettings`, delete
   `~/.config/noctalia/plugins/<name>/settings.json` and reload.
 
-`qmllint <file>.qml` catches syntax errors. It cannot resolve the `qs.*` imports (the shell ships no
-`qmldir` files), so it won't catch a misspelled `Style.` token — those only show up at runtime in
-the shell's log.
+For linting, use the **Qt 6** binary explicitly:
+
+```fish
+/usr/lib/qt6/bin/qmllint -I /etc/xdg/quickshell/noctalia-shell **/*.qml
+```
+
+On distributions that ship `qt5-declarative`, plain `qmllint` on `$PATH` is Qt 5's, which rejects
+Qt 6 QML syntax and exits non-zero while printing nothing at all — an easy way to believe you have
+a syntax error when you don't, or to believe you've linted when you haven't.
+
+Even the Qt 6 one cannot resolve the `qs.*` imports (the shell ships no `qmldir` files), so expect
+`Failed to import qs.Commons` warnings and a few cascading false positives from them. It won't
+catch a misspelled `Style.` token either — those only show up at runtime in the shell's log.
 
 ## House rules these follow
 
