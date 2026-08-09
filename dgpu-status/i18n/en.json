@@ -1,0 +1,43 @@
+{
+  "bar": {
+    "tooltip-active": "dGPU active — {temp}°C, {util}% load, {watts} W, {processes} process(es)",
+    "tooltip-suspended": "dGPU {state} — nothing is using it",
+    "tooltip-no-device": "No NVIDIA GPU with runtime power management found"
+  },
+  "context": {
+    "settings": "Open settings"
+  },
+  "panel": {
+    "title": "Discrete GPU",
+    "state-active": "Powered up",
+    "state-suspended": "Suspended (D3cold)",
+    "state-suspending": "Going to sleep…",
+    "state-resuming": "Waking up…",
+    "state-reading": "Reading power state…",
+    "state-no-device": "No NVIDIA GPU found",
+    "suspended-explainer": "The discrete GPU is powered down and nothing is using it. No queries are being made — reading temperature or load would resume the GPU and cost battery.",
+    "wake-and-read": "Wake GPU and read stats",
+    "wake-warning": "This resumes the GPU. It will go back to sleep on its own once nothing is using it.",
+    "temperature": "Temperature",
+    "utilization": "Utilisation",
+    "power": "Power draw",
+    "memory": "VRAM",
+    "processes": "Processes on the GPU",
+    "no-processes": "No processes are using the GPU.",
+    "backed-off": "Nothing running — polling slowed down so the queries don't keep the GPU awake."
+  },
+  "settings": {
+    "hide-when-suspended": "Hide widget when suspended",
+    "hide-when-suspended-description": "Remove the bar widget entirely while the GPU is asleep.",
+    "show-temperature": "Show temperature in the bar",
+    "show-temperature-description": "Off shows utilisation percentage instead.",
+    "status-interval": "Power state interval",
+    "status-interval-description": "How often the kernel's runtime_status file is read. Free — this never touches the GPU.",
+    "active-interval": "Stats interval (active)",
+    "active-interval-description": "How often nvidia-smi runs while the GPU is already awake. Minimum 5 s.",
+    "idle-interval": "Stats interval (awake but idle)",
+    "idle-interval-description": "Slower cadence used after three samples with no processes and no load.",
+    "pci-address": "PCI address",
+    "pci-address-description": "Leave blank to auto-detect the first NVIDIA VGA device with runtime power management."
+  }
+}

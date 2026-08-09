@@ -1,0 +1,35 @@
+{
+  "id": "scx-scheduler",
+  "name": "sched-ext Scheduler",
+  "version": "0.1.0",
+  "minNoctaliaVersion": "4.1.2",
+  "author": "zyrex",
+  "license": "MIT",
+  "description": "Switch sched-ext CPU schedulers (scx_loader) from the bar. Shows the running scheduler and lets you start, switch, stop or restore it.",
+  "tags": [
+    "Bar",
+    "Panel",
+    "System",
+    "Utility"
+  ],
+  "entryPoints": {
+    "main": "Main.qml",
+    "barWidget": "BarWidget.qml",
+    "panel": "Panel.qml",
+    "settings": "Settings.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "defaultSettings": {
+      "pollIntervalSec": 5,
+      "showLabel": true,
+      "stoppedLabel": "default",
+      "defaultMode": "auto",
+      "activeColor": "primary",
+      "textColor": "none",
+      "iconColor": "none"
+    }
+  }
+}

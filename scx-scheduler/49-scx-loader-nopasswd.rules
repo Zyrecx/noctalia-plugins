@@ -1,0 +1,47 @@
+/*
+ * Allow members of the `wheel` group to start, stop and switch sched-ext
+ * schedulers without a password prompt.
+ *
+ * Without this, org.scx.loader.manage-schedulers defaults to
+ * auth_admin_keep, which asks for an administrator password. The "keep" is
+ * supposed to cache the answer for the session, but in practice each scxctl
+ * invocation is a fresh short-lived process and the prompt tends to come back
+ * on every switch — which makes a one-click scheduler toggle pointless.
+ *
+ * WHAT THIS GRANTS
+ *   Any local user in `wheel` may call the org.scx.Loader D-Bus methods:
+ *   StartScheduler, SwitchScheduler, StopScheduler, RestartScheduler,
+ *   RestoreDefault, and the *WithArgs variants.
+ *
+ * WHAT IT DOES NOT GRANT
+ *   It is not arbitrary code execution. scx_loader will only launch
+ *   schedulers from its own compiled-in list (scx_lavd, scx_bpfland, ...) —
+ *   you cannot point it at a binary of your choosing. The realistic worst
+ *   case is a badly chosen scheduler degrading performance, which the kernel
+ *   watchdog reverts if the scheduler stalls. Note that the *WithArgs methods
+ *   do let a caller pass arbitrary command-line arguments to those fixed
+ *   scheduler binaries.
+ *
+ * On a single-user laptop that is a reasonable trade. On a shared or
+ * multi-user machine, narrow `wheel` to your own username instead:
+ *
+ *     if (subject.user == "zyrex") { ... }
+ *
+ * INSTALL
+ *     pkexec install -m 0644 -o root -g root \
+ *       /mnt/SSD2/Projects/noctalia-plugins/scx-scheduler/49-scx-loader-nopasswd.rules \
+ *       /etc/polkit-1/rules.d/49-scx-loader-nopasswd.rules
+ *
+ * Takes effect immediately — polkit watches rules.d, no restart needed.
+ *
+ * UNINSTALL
+ *     pkexec rm /etc/polkit-1/rules.d/49-scx-loader-nopasswd.rules
+ */
+
+polkit.addRule(function (action, subject) {
+    if (action.id == "org.scx.loader.manage-schedulers" &&
+        subject.local && subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

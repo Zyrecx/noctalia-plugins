@@ -1,0 +1,32 @@
+{
+  "id": "run-path",
+  "name": "Run / Open Path",
+  "version": "0.1.0",
+  "minNoctaliaVersion": "4.1.2",
+  "author": "zyrex",
+  "license": "MIT",
+  "description": "Type a filesystem path in the launcher to open it in your file manager, with live completion — or type anything else to run it as a command.",
+  "tags": [
+    "Launcher",
+    "Utility",
+    "Productivity"
+  ],
+  "entryPoints": {
+    "main": "Main.qml",
+    "launcherProvider": "Provider.qml",
+    "settings": "Settings.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "commandPrefix": "r",
+    "defaultSettings": {
+      "keybindHint": "Super+R",
+      "fileManager": "xdg-open",
+      "fileOpener": "xdg-open",
+      "showHidden": false,
+      "maxResults": 20
+    }
+  }
+}

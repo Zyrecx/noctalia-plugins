@@ -1,0 +1,35 @@
+{
+  "id": "dgpu-status",
+  "name": "dGPU Status",
+  "version": "0.1.0",
+  "minNoctaliaVersion": "4.1.2",
+  "author": "zyrex",
+  "license": "MIT",
+  "description": "Shows whether the discrete NVIDIA GPU is powered up, and its temperature, load and processes while it is. Never wakes a suspended GPU.",
+  "tags": [
+    "Bar",
+    "Panel",
+    "System",
+    "Indicator"
+  ],
+  "entryPoints": {
+    "main": "Main.qml",
+    "barWidget": "BarWidget.qml",
+    "panel": "Panel.qml",
+    "settings": "Settings.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "defaultSettings": {
+      "pciAddress": "",
+      "statusIntervalSec": 3,
+      "activeIntervalSec": 5,
+      "idleIntervalSec": 30,
+      "hideWhenSuspended": false,
+      "showTemperature": true,
+      "activeColor": "primary"
+    }
+  }
+}

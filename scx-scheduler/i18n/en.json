@@ -1,0 +1,56 @@
+{
+  "bar": {
+    "tooltip-running": "Scheduler: {scheduler}",
+    "tooltip-running-mode": "Scheduler: {scheduler} ({mode})",
+    "tooltip-stopped": "Kernel default scheduler (no sched-ext scheduler loaded)",
+    "tooltip-unavailable": "scx_loader is not reachable",
+    "tooltip-unknown": "sched-ext scheduler"
+  },
+  "context": {
+    "stop": "Stop scheduler",
+    "restore": "Restore default",
+    "settings": "Open settings"
+  },
+  "panel": {
+    "title": "CPU Scheduler",
+    "refresh": "Refresh",
+    "mode": "Mode",
+    "mode-description": "Applied to the scheduler you pick below.",
+    "status-running": "Running {scheduler}",
+    "status-running-mode": "Running {scheduler} in {mode} mode",
+    "status-stopped": "No sched-ext scheduler loaded — the kernel's own scheduler is running.",
+    "loader-unavailable": "scx_loader is not responding. Check: systemctl status scx_loader",
+    "stop": "Stop",
+    "restore": "Restore",
+    "restore-tooltip": "Load the configured default ({scheduler})",
+    "restore-unconfigured": "No default configured — set default_sched in /etc/scx_loader.toml"
+  },
+  "modes": {
+    "auto": "Auto",
+    "gaming": "Gaming",
+    "lowlatency": "Low latency",
+    "powersave": "Power save",
+    "server": "Server"
+  },
+  "schedulers": {
+    "lavd": "Latency-criticality aware; aimed at gaming and interactive desktop use.",
+    "bpfland": "Prioritises interactive tasks to keep the desktop responsive under load.",
+    "rusty": "General-purpose, topology-aware multi-domain scheduler.",
+    "flash": "Deadline-based; aims at predictable latency for audio and real-time work.",
+    "rustland": "Scheduling policy implemented in user space; experimental.",
+    "tickless": "Reduces timer ticks; aimed at servers and virtualised workloads."
+  },
+  "settings": {
+    "show-label": "Show scheduler name in the bar",
+    "show-label-description": "Display the running scheduler's short name next to the icon.",
+    "stopped-label": "Label when stopped",
+    "stopped-label-description": "Shown when no sched-ext scheduler is loaded.",
+    "default-mode": "Default mode",
+    "default-mode-description": "Pre-selected mode when the panel opens.",
+    "poll-interval": "Refresh interval",
+    "poll-interval-description": "How often the running scheduler is re-read from scx_loader."
+  },
+  "errors": {
+    "action-failed": "Command failed — the authentication prompt may have been cancelled."
+  }
+}

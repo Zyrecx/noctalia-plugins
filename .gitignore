@@ -1,0 +1,7 @@
+# Per-plugin runtime state written by Noctalia, not source
+*/settings.json
+
+# NTFS / Windows litter (this tree lives on an ntfs3 mount)
+desktop.ini
+Thumbs.db
+$RECYCLE.BIN/

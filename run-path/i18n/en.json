@@ -1,0 +1,31 @@
+{
+  "provider": {
+    "name": "Run / Open Path",
+    "command-description": "Open a path in your file manager, or run a command",
+    "command-description-key": "Open a path in your file manager, or run a command  ·  {key}"
+  },
+  "results": {
+    "open-directory": "Open {name}",
+    "open-file": "Open {name}",
+    "open-file-description": "Open with the default application",
+    "descend": "Enter this folder",
+    "run": "Run: {command}",
+    "run-description": "Execute with sh -c",
+    "loading": "Reading directory…",
+    "no-such-directory": "No such directory"
+  },
+  "settings": {
+    "bind-line": "Hyprland keybind",
+    "bind-line-description": "Paste this into your Hyprland config. A Wayland shell cannot register a global hotkey itself — the compositor has to.",
+    "keybind-hint": "Keybind label",
+    "keybind-hint-description": "Shown next to >r in the launcher's command list. Change it if you bound a different key. Leave empty to hide.",
+    "file-manager": "File manager",
+    "file-manager-description": "Command used to open directories. xdg-open follows your desktop default.",
+    "file-opener": "File opener",
+    "file-opener-description": "Command used to open files.",
+    "show-hidden": "Show hidden files",
+    "show-hidden-description": "Include dotfiles in completion results.",
+    "max-results": "Maximum results",
+    "max-results-description": "How many completion entries to list at once."
+  }
+}
