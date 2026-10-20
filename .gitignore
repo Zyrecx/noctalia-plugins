@@ -1,0 +1,10 @@
+# Per-plugin runtime state written by Noctalia, not source
+*/settings.json
+
+# Windows litter, in case this tree lives on an NTFS mount
+desktop.ini
+Thumbs.db
+$RECYCLE.BIN/
+
+# Python bytecode from the bundled scripts
+__pycache__/
