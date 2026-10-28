@@ -92,10 +92,24 @@ noctalia msg plugin zyrex/nothing-ear:service all refresh
 noctalia msg plugin zyrex/nothing-ear:service all scan-devices
 noctalia msg plugin zyrex/nothing-ear:service all select-device AA:BB:CC:DD:EE:FF
 noctalia msg plugin zyrex/nothing-ear:service all forget-device
+
+# Copy a diagnostics report to the clipboard (same as Copy details in the panel).
+noctalia msg plugin zyrex/nothing-ear:service all copy-details
 ```
 
 Current state is published as `nothing_ear_status` in shared plugin state
 (`noctalia.state.get` / `noctalia.state.watch`).
+
+## Troubleshooting
+
+When the earbuds can't be reached, the panel says why and what to try. **Copy details** puts a
+report on the clipboard for a bug report: plugin and Python versions, what BlueZ knows about the
+earbuds, the last error and a fresh connection attempt, step by step. The second half of the MAC
+address is masked. The same report from a terminal:
+
+```sh
+python3 ~/.local/state/noctalia/plugins/materialized/community/nothing-ear/scripts/nothing_ear_ctl.py diag
+```
 
 ## Notes
 

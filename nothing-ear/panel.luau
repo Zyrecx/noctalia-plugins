@@ -99,7 +99,7 @@ local function ancControls(anc, personalAnc)
 				fill = selected and "primary/0.18" or "on_surface/0.06",
 				-- always reserve the border's stroke width so selecting a mode doesn't
 				-- resize the circle and shove its neighbors around; hide it via alpha instead
-				border = selected and "outline/0" or "outline",
+				border = selected and "outline_variant/0" or "outline_variant",
 				onClick = function()
 					sendCommand("set-anc", spec.mode, spec.mode == "anc" and "high" or nil)
 				end,
@@ -247,6 +247,33 @@ local function audioControls(s)
 	})
 end
 
+-- A short hint of what to try; the specifics (errno, step, raw replies) go
+-- into Copy details instead, for a bug report. Both only once a poll has
+-- actually failed, not while the first one is still running.
+local function notConnected(code)
+	local rows = {
+		ui.label({ text = noctalia.tr("widget.not_connected"), fontSize = 14, textAlign = "center", color = "on_surface" }),
+	}
+	if code ~= nil then
+		local key = shared.ERROR_HINTS[code] and code or "unknown"
+		table.insert(rows, ui.label({
+			text = noctalia.tr("panel.error." .. key),
+			fontSize = 12,
+			color = "on_surface_variant",
+			textAlign = "center",
+		}))
+		table.insert(rows, ui.button({
+			text = noctalia.tr("panel.copy_details"),
+			glyph = "copy",
+			variant = "ghost",
+			onClick = function()
+				sendCommand("copy-details", nil)
+			end,
+		}))
+	end
+	return ui.column({ align = "center", gap = 8, padding = 24 }, rows)
+end
+
 local function render()
 	local body = {}
 
@@ -254,9 +281,7 @@ local function render()
 		table.insert(body, devicePicker(devicesState))
 	else
 		if status.connected ~= true then
-			table.insert(body, ui.column({ align = "center", gap = 8, padding = 24 }, {
-				ui.label({ text = noctalia.tr("widget.not_connected"), fontSize = 14, textAlign = "center", color = "on_surface" }),
-			}))
+			table.insert(body, notConnected(status.error))
 		else
 			local battery = status.battery or {}
 			table.insert(body, ui.row({ align = "center", justify = "space_between", gap = 12, padding = 4 }, {

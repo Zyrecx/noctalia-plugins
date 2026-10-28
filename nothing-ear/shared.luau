@@ -28,6 +28,22 @@ M.EQ_PRESETS = {
 	{ index = 5, name = "custom" },
 }
 
+-- Error codes from nothing_ear_ctl.py that have their own hint under
+-- panel.error.* in the translations; any other code shows panel.error.unknown.
+M.ERROR_HINTS = {
+	not_connected = true,
+	bt_off = true,
+	refused = true,
+	unreachable = true,
+	timeout = true,
+	permission = true,
+	no_bt_support = true,
+	no_service = true,
+	sdp_failed = true,
+	no_response = true,
+	helper_failed = true,
+}
+
 function M.isEqPreset(index)
 	for _, preset in ipairs(M.EQ_PRESETS) do
 		if preset.index == index then
