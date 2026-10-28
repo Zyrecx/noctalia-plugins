@@ -114,7 +114,8 @@ python3 ~/.local/state/noctalia/plugins/materialized/community/nothing-ear/scrip
 ## Notes
 
 - Processes: the service runs `scripts/nothing_ear_ctl.py` once per poll or command over a raw
-  RFCOMM socket, `bluetoothctl devices Paired` to list devices (read-only), and
+  RFCOMM socket, `bluetoothctl devices Paired` to list devices, `bluetoothctl info`/`show` to
+  check the earbuds are connected and explain failures (all read-only), and
   `scripts/mono_switch.py`, which calls `pactl` to load or unload a `module-remap-sink` named
   `nothing_ear_mono` and move streams onto it.
 - Files: the RFCOMM channel, last-known state, a lock file and the mono state
