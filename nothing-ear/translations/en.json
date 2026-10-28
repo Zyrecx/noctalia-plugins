@@ -58,7 +58,13 @@
       "more_bass": "More Bass",
       "more_treble": "More Treble",
       "voice": "Voice",
-      "custom": "Custom"
+      "custom": "Custom",
+      "dirac": "Dirac",
+      "pop": "Pop",
+      "rock": "Rock",
+      "electronic": "Electronic",
+      "enhance_vocals": "Vocals",
+      "classical": "Classical"
     },
     "latency": {
       "title": "Low Latency Mode",
@@ -104,6 +110,9 @@
       "no_response": "Connected, but the earbuds didn't answer. This model may not be supported yet.",
       "helper_failed": "The plugin's helper script didn't finish. If this keeps happening, copy the details below and report it.",
       "unknown": "Something unexpected went wrong."
+    },
+    "bass": {
+      "title": "Bass Boost"
     }
   },
   "shortcut": {

@@ -350,6 +350,21 @@ local function setEq(preset)
 	runCtl({ "set-eq", tostring(preset) }, applyResultThenRefresh)
 end
 
+-- level 0 is off; the buds keep the last level for when it's turned back on.
+local function setBass(level)
+	runCtl({ "set-bass", tostring(level) }, applyResultThenRefresh)
+end
+
+local function setBassEnabled(enabled)
+	local bass = (noctalia.state.get(STATUS_KEY) or {}).bass or {}
+	setBass(enabled and math.max(1, bass.level or 1) or 0)
+end
+
+local function modelPresets()
+	local model = (noctalia.state.get(STATUS_KEY) or {}).model or {}
+	return model.eq_presets
+end
+
 local function setLatency(enabled)
 	runCtl({ "set-latency", enabled and "1" or "0" }, applyResultThenRefresh)
 end
@@ -471,6 +486,13 @@ local function executeCommand(cmdObj)
 		setAnc(cmdObj.value, cmdObj.strength)
 	elseif cmdObj.action == "set-eq" then
 		setEq(cmdObj.value)
+	elseif cmdObj.action == "set-bass" then
+		local n = tonumber(cmdObj.value)
+		if n ~= nil and n >= 0 and n <= 5 then
+			setBass(n)
+		end
+	elseif cmdObj.action == "set-bass-enabled" then
+		setBassEnabled(shared.toBool(cmdObj.value))
 	elseif cmdObj.action == "set-latency" then
 		setLatency(shared.toBool(cmdObj.value))
 	elseif cmdObj.action == "set-mono" then
@@ -510,7 +532,9 @@ end
 -- through the panel — e.g. "Discord opens -> set ANC to noise cancellation".
 -- `set-anc` payload is `<mode>` or `<mode>:<strength>` (mode one of
 -- anc/transparency/off, strength one of high/mid/low/adaptive, only
--- meaningful for anc). `set-eq` payload is a preset index from shared.EQ_PRESETS. `set-latency`,
+-- meaningful for anc). `set-eq` payload is a preset index from the model's
+-- preset list (shared.EQ_PRESETS on an Ear (2)). `set-bass` payload is a
+-- bass boost level 1-5, or 0 for off. `set-latency`,
 -- `set-mono`, `set-personal-anc` and `set-sound-profile` payloads are
 -- "0"/"1"/"true"/"false".
 function onIpc(event, payload)
@@ -526,8 +550,13 @@ function onIpc(event, payload)
 		end
 	elseif event == "set-eq" then
 		local n = tonumber(payload)
-		if n ~= nil and shared.isEqPreset(n) then
+		if n ~= nil and shared.isEqPreset(n, modelPresets()) then
 			setEq(n)
+		end
+	elseif event == "set-bass" then
+		local n = tonumber(payload)
+		if n ~= nil and n >= 0 and n <= 5 then
+			setBass(n)
 		end
 	elseif event == "set-latency" then
 		local text = type(payload) == "string" and payload:lower() or ""

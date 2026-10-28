@@ -289,6 +289,36 @@ the app's own traffic (Android HCI snoop log) and from the PC.
   the app changes this ID, i.e. the app computes and uploads a new filter, so
   only on/off is practical from here.
 
+## Newer CMF models (2026-10-28, not verified on hardware by this plugin)
+
+Taken from frames a CMF Buds 2 Plus owner captured with BudsLink
+(github.com/maniacx/BudsLink, issue #14) and cross-checked against ear-web.
+Only facts both projects agree on are used.
+
+- **Pushes start `55 20`**, not `55 60`, and still carry a CRC over the
+  whole frame. Byte 1's `0x20` bit flags the CRC; both forms parse the same
+  way. Battery (`0xE001`) and ANC (`0xE003`) pushes carry the same payload
+  as the `0x4007` / `0x401E` replies.
+- **Byte 6 is the high byte of a 16-bit LE payload length.** It is 0 in all
+  captured traffic.
+- **Empty payload = unsupported.** Reads a model doesn't support come back
+  with a zero-length payload (`0x401D`, `0x4004`, `0x4005` in the capture).
+  Any parser has to allow for that. A CMF Buds 2 crashed the 0.1.x reader on
+  one, most likely its reply to the personal ANC or sound profile read.
+- **Model ID: `0xC01C` → `0x401C`**, 2 bytes LE (`84 b1` = B184, CMF Buds 2
+  Plus). Preferred over the serial-number SKU lookup, which BudsLink found
+  maps the CMF Buds 2 Plus to an Ear (1).
+- **Listening-mode EQ: read `0xC050` → `0x4050` (payload[0]), write `0xF01D`
+  `[preset, 0x00]`, ack `0x701D`.** Used instead of `0xC01F`/`0xF010` by
+  CMF Buds 2 (B179), 2 Plus (B184) and 2a (B185). Presets: 0 Dirac (2a: 7,
+  2 Plus: none), 1 Rock, 2 Electronic, 3 Pop, 4 Enhance vocals, 5 Classical,
+  6 Custom. CMF Buds (B168) and Buds Pro 2 (B172/B187) are also on these
+  commands, but no preset table is confirmed for them.
+- **Bass boost: read `0xC04E` → `0x404E` `[enabled, level*2]`, write
+  `0xF051` with the same layout, ack `0x7051`.** Five levels, on B168, B171,
+  B162, B172, B179 and B184. B195/B197 use a 3-step scheme and aren't
+  handled.
+
 ## Still open
 
 1. Whether the sequence byte (header[7]) is echoed in responses/acks — not
@@ -311,7 +341,7 @@ the app's own traffic (Android HCI snoop log) and from the PC.
    need a real packet capture against the Nothing X app to resolve;
    deferred rather than guessing further against the user's hardware.
    Gesture writes also still unprobed.
-8. Model identification is hardware-confirmed only for a B155 (Ear (2))
+8. Model identification (serial path) is hardware-confirmed only for a B155 (Ear (2))
    serial in the `SH`-prefix case. The `13`-prefix and `MA`-prefix (year
    disambiguated) branches, and every SKU-to-base mapping other than
    17–19/27–29, are taken on the two references' word alone — not verified
