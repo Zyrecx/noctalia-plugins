@@ -346,3 +346,46 @@ Only facts both projects agree on are used.
    disambiguated) branches, and every SKU-to-base mapping other than
    17–19/27–29, are taken on the two references' word alone — not verified
    against real hardware of those models.
+
+
+## CMF Headphone Pro (B175)
+
+Research checked 2026-11-07 against the current public sources below. No B175 hardware
+or B175 packet capture was available; tests use synthetic packets from these layouts.
+
+- [BudsLink model configuration](https://github.com/maniacx/BudsLink/blob/0eb4d07dcd7eafabf425d98c607e02fc9519c94b/src/lib/devices/nothingBuds/deviceConfigs/CMFHeadphonePro.js):
+  B175, single battery, classic preset indexes 0/1/2/3/5, five bass levels,
+  ANC off/transparency and low/mid/high/adaptive, low-latency support.
+- [BudsLink protocol constants](https://github.com/maniacx/BudsLink/blob/0eb4d07dcd7eafabf425d98c607e02fc9519c94b/src/lib/devices/nothingBuds/nothingBudsConfig.js)
+  and [socket implementation](https://github.com/maniacx/BudsLink/blob/0eb4d07dcd7eafabf425d98c607e02fc9519c94b/src/lib/devices/nothingBuds/nothingBudsSocket.js):
+  battery device ID 0x06; the high bit indicates charging and the low seven bits give
+  the percentage. Bass uses the existing 0xC04E/0xF051 commands, with level multiplied by two.
+- [ear-web routing](https://github.com/radiance-project/ear-web/blob/89f69fbab8550d6b5ba8cd0c47e704a1c057ac1d/res/js/nothing_connected.js)
+  independently identifies B175 as Forretress.
+- [ear-web protocol](https://github.com/radiance-project/ear-web/blob/89f69fbab8550d6b5ba8cd0c47e704a1c057ac1d/res/js/bluetooth_socket.js)
+  independently confirms battery ID 0x06 and ANC/latency payloads, but routes B175 EQ
+  through listening-mode reads/writes (0xC050/0xF01D), contrary to BudsLink's classic
+  commands (0xC01F/0xF010). Its B175 page loads eq_espeon.js, whose buttons send
+  listening-mode commands. Its shared bass implementation does not include B175.
+  Therefore bass support is based on BudsLink, not independent agreement.
+- [ear-web B175 page](https://github.com/radiance-project/ear-web/blob/89f69fbab8550d6b5ba8cd0c47e704a1c057ac1d/res/MainControl/MainControl_forretress.html)
+  uses different labels/indexes: Pop 3, Rock 1, Electronic 2, Vocals 4, Classical 5,
+  Custom 6. Dirac 0 is hidden on that page and is not offered by this implementation.
+
+Implementation: probe both EQ families with read-only commands on each headphone poll.
+Only one recognized response enables that family and its own preset table; missing,
+invalid or ambiguous replies hide EQ and reject preset writes. No writes are sent as a
+probe. The selected family is cached per MAC for subsequent explicit preset writes.
+Bass stays hidden unless a valid bass response is received. Personal ANC and sound-profile
+reads are omitted for B175. A dedicated single-battery field and headphone icons are used
+on the panel, bar and desktop widget, and single-battery devices cannot trigger auto mono.
+
+Unknown firmware, simultaneous responses from both EQ families, and features such as
+spatial audio, custom EQ editing, gestures, and the physical bass/treble slider remain
+unverified or outside this plugin's controls. Existing diagnostics retain raw malformed
+replies for follow-up if testing on real hardware reveals a mismatch.
+
+Validation: `python3 -B -m unittest discover -s tests` covers synthetic B175 replies,
+EQ family selection and refusal, name fallbacks, single-battery pushes, malformed bass,
+and the outgoing ANC/latency/bass payloads. With `lua` installed, it also runs mocked
+panel/bar/desktop rendering and auto-mono checks. These do not replace hardware testing.
