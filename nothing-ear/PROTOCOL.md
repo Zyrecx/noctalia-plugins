@@ -372,20 +372,47 @@ or B175 packet capture was available; tests use synthetic packets from these lay
   uses different labels/indexes: Pop 3, Rock 1, Electronic 2, Vocals 4, Classical 5,
   Custom 6. Dirac 0 is hidden on that page and is not offered by this implementation.
 
-Implementation: probe both EQ families with read-only commands on each headphone poll.
-Only one recognized response enables that family and its own preset table; missing,
-invalid or ambiguous replies hide EQ and reject preset writes. No writes are sent as a
-probe. The selected family is cached per MAC for subsequent explicit preset writes.
-Bass stays hidden unless a valid bass response is received. Personal ANC and sound-profile
-reads are omitted for B175. A dedicated single-battery field and headphone icons are used
-on the panel, bar and desktop widget, and single-battery devices cannot trigger auto mono.
+### Hardware feedback and 0.4.0 (2026-11-15)
 
-Unknown firmware, simultaneous responses from both EQ families, and features such as
-spatial audio, custom EQ editing, gestures, and the physical bass/treble slider remain
-unverified or outside this plugin's controls. Existing diagnostics retain raw malformed
-replies for follow-up if testing on real hardware reveals a mismatch.
+An owner tested 0.3.1 (issue #1195 in noctalia-dev/community-plugins): detection, ANC,
+low latency and mono work. The EQ probe below showed no presets, bass boost did nothing,
+and ear-web drove EQ, spatial audio and the codec switch correctly on the same headphones.
+So B175 now follows ear-web alone:
+
+- **EQ: listening-mode commands** (`0xC050` / `0xF01D`), presets Pop 3, Rock 1,
+  Electronic 2, Enhance vocals 4, Classical 5, Custom 6. These are also the six presets
+  the Nothing X app shows for this model. The read-only two-family probe is gone.
+- **No bass boost.** ear-web's device table has `ultraBass: 0` for B175; the headphones
+  have a physical bass slider instead. BudsLink's bass entry for B175 was wrong.
+- **Spatial audio: read `0xC04F` → `0x404F` `[mode, head]`, write `0xF052` `[mode, head]`.**
+  Modes: 0 off, 1 fixed (head 0) or head tracked (head 1), 2 concert, 3 theatre, 4 game.
+  B175's capability mask is 28 (bits 0x08 concert, 0x10 theatre, plus 0x04 which ear-web
+  has no mode for). The Nothing X app shows Concert, Cinema and Off, so the plugin offers
+  concert (2), cinema (3) and off (0), always with head 0. Any other reply hides the row.
+- **Codec: read `0xC029` → `0x4029` `[index]`, write `0xF01C` `[index]`.** 0 AAC, 1 LHDC,
+  2 LDAC. B175's mask is 4, i.e. AAC and LDAC. The headphones restart after the write, so
+  the plugin doesn't read back; it waits up to 30 s for them to answer polls again.
+
+- **Codec on other models (2026-11-15).** A Nothing Ear (2) answers `0xC029` with `01`
+  while on LHDC, matching ear-web's index table and its capability bits (2 = LHDC,
+  4 = LDAC). The plugin therefore offers the switch on every model ear-web's device
+  table gives a mask for: B155 LHDC; B171 LHDC + LDAC; B162, B183, B173, B190, B172,
+  B187, B184 and B175 LDAC. The write is not yet confirmed from this plugin.
+
+The write payloads and the reads' handling are covered by synthetic tests. Not confirmed
+on hardware by this plugin: the spatial and codec commands sent from this plugin (as
+opposed to from ear-web), and how long the restart takes.
+
+Still outside this plugin for B175: gestures (button, roller, slider), custom EQ editing,
+dual connection, Personal Sound Profile (Audiodo on this model, needs an external SDK
+according to ear-web).
+
+### First implementation (0.3.0, superseded above)
+
+Probed both EQ families read-only and enabled one only when exactly one answered with a
+recognised preset; bass was shown when a bass read answered. Neither worked on hardware.
 
 Validation: `python3 -B -m unittest discover -s tests` covers synthetic B175 replies,
-EQ family selection and refusal, name fallbacks, single-battery pushes, malformed bass,
-and the outgoing ANC/latency/bass payloads. With `lua` installed, it also runs mocked
-panel/bar/desktop rendering and auto-mono checks. These do not replace hardware testing.
+single-battery pushes, the spatial/codec/EQ payloads and refusals, and the outgoing
+ANC/latency payloads. With `lua` installed, it also runs mocked panel/bar/desktop rendering,
+the codec confirmation and auto-mono checks. These do not replace hardware testing.
