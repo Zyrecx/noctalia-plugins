@@ -111,7 +111,7 @@ corrected and hardware-confirmed.
 | Ring buds | — | — | 0xF002 | — | untested, no read (fire-and-forget) |
 | Ear-fit test | — | — | 0xF014 | 0xE00D | untested |
 | LED case color | 0xC017 | 0x4017 | 0xF00D | — | B181 (Ear 1) only per reference — likely N/A for B155, skip |
-| Custom EQ | 0xC044 | 0x4044 | 0xF041 | — | float-encoded bands, deprioritized |
+| Custom EQ | 0xC044 | 0x4044 | 0xF041 | — | 3-band float32 curve, see 0.5.0 under B175 |
 | Advanced EQ toggle | 0xC04C | 0x404C | 0xF04F | — | deprioritized |
 | Enhanced bass | 0xC04E | 0x404E | 0xF051 | — | reference gates this out for B155 — skip |
 | Listening mode | 0xC050 | 0x4050 | 0xF01D | — | reference gates this to B172/B168 only — skip |
@@ -403,7 +403,32 @@ The write payloads and the reads' handling are covered by synthetic tests. Not c
 on hardware by this plugin: the spatial and codec commands sent from this plugin (as
 opposed to from ear-web), and how long the restart takes.
 
-Still outside this plugin for B175: gestures (button, roller, slider), custom EQ editing,
+### 0.4.0 feedback and 0.5.0 (2026-11-17)
+
+The owner reported on 0.4.0: EQ presets work, but spatial audio and codec writes from
+this plugin change nothing, while the reads track changes made from the app or ear-web.
+The frames this plugin sent were byte-identical to ear-web's apart from the sequence byte,
+and the same codec write works on an Ear (2). What still differs is the session: ear-web
+keeps one connection open and, before any write, sends battery, EQ, firmware, a time write
+(`0xF00A`, Unix seconds big-endian), latency, gesture, ANC, advanced-EQ (`0xC04C`),
+dual-connection (`0xC027`), codec and spatial reads, 100 ms apart, numbering frames 1, 2,
+3... This plugin wrote straight after connecting with sequence 1 and closed ~1.5 s later.
+0.5.0 replays that session before spatial and codec writes, and records every frame of the
+last write for Copy details. Unconfirmed until the owner tests it. On an Ear (2) the session
+is harmless: every read is answered and the time write is acked (`0x700A`).
+
+**Custom EQ (all models but Ear (1)), confirmed on an Ear (2):** read `0xC044` → `0x4044`,
+write `0xF041`, 53-byte payload: band count `03`, overall gain float32 LE = −max(gains, 0)
+(`-0.0` when nothing is boosted), then three 13-byte bands `[type, gain, freq, Q]` (floats LE)
+in the order peak/mid (type 1, 980 Hz, Q 0.7), high shelf/treble (type 2), low shelf/bass
+(type 0, 140 Hz, Q 0.8), then 9 zero bytes. Treble shelf: 3400 Hz on the Ear (2), Ear (a),
+Ear (3), Ear (3a), Ear (2024), Ear (open), CMF Buds Pro; 3500 Hz on Ear (stick) (mid Q 0.66)
+and CMF Headphone Pro; 6900 Hz on CMF Buds, Buds Pro 2, Buds 2, 2 Plus, 2a. Gains are
+whole dB from −6 to +6. The Ear (2) stores the payload verbatim and reads it back padded
+to 109 bytes; before any curve is saved the read is all zeros. Writing the curve doesn't
+select the custom preset.
+
+Still outside this plugin for B175: gestures (button, roller, slider),
 dual connection, Personal Sound Profile (Audiodo on this model, needs an external SDK
 according to ear-web).
 
